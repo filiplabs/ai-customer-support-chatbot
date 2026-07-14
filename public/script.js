@@ -1,6 +1,7 @@
 const form = document.querySelector("#chat-form");
 const input = document.querySelector("#message-input");
 const messages = document.querySelector("#messages");
+const submitButton = form.querySelector("button");
 
 function addMessage(text, type) {
   const message = document.createElement("div");
@@ -23,8 +24,9 @@ form.addEventListener("submit", async (event) => {
 
   addMessage(userMessage, "user");
   input.value = "";
+  input.disabled = true;
+  submitButton.disabled = true;
 
-  // AI is typing...
   const typingMessage = document.createElement("div");
   typingMessage.classList.add("message", "bot-message");
   typingMessage.textContent = "AI is typing...";
@@ -45,12 +47,19 @@ form.addEventListener("submit", async (event) => {
 
     const data = await response.json();
 
-    typingMessage.remove();
+    if (!response.ok) {
+      throw new Error(data.error || "Unable to get a response.");
+    }
 
+    typingMessage.remove();
     addMessage(data.reply, "bot");
   } catch (error) {
     typingMessage.remove();
-
     addMessage("Something went wrong. Please try again.", "bot");
+    console.error(error);
+  } finally {
+    input.disabled = false;
+    submitButton.disabled = false;
+    input.focus();
   }
 });
