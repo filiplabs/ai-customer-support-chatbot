@@ -1,7 +1,9 @@
 const form = document.querySelector("#chat-form");
 const input = document.querySelector("#message-input");
-const messages = document.querySelector("#messages");
+const messagesContainer = document.querySelector("#messages");
 const submitButton = form.querySelector("button");
+
+const conversation = [];
 
 function addMessage(text, type) {
   const message = document.createElement("div");
@@ -9,8 +11,8 @@ function addMessage(text, type) {
   message.classList.add("message", `${type}-message`);
   message.textContent = text;
 
-  messages.appendChild(message);
-  messages.scrollTop = messages.scrollHeight;
+  messagesContainer.appendChild(message);
+  messagesContainer.scrollTop = messagesContainer.scrollHeight;
 }
 
 form.addEventListener("submit", async (event) => {
@@ -23,6 +25,12 @@ form.addEventListener("submit", async (event) => {
   }
 
   addMessage(userMessage, "user");
+
+  conversation.push({
+    role: "user",
+    content: userMessage,
+  });
+
   input.value = "";
   input.disabled = true;
   submitButton.disabled = true;
@@ -31,8 +39,8 @@ form.addEventListener("submit", async (event) => {
   typingMessage.classList.add("message", "bot-message");
   typingMessage.textContent = "AI is typing...";
 
-  messages.appendChild(typingMessage);
-  messages.scrollTop = messages.scrollHeight;
+  messagesContainer.appendChild(typingMessage);
+  messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
   try {
     const response = await fetch("/chat", {
@@ -41,7 +49,7 @@ form.addEventListener("submit", async (event) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        message: userMessage,
+        messages: conversation,
       }),
     });
 
@@ -53,6 +61,11 @@ form.addEventListener("submit", async (event) => {
 
     typingMessage.remove();
     addMessage(data.reply, "bot");
+
+    conversation.push({
+      role: "assistant",
+      content: data.reply,
+    });
   } catch (error) {
     typingMessage.remove();
     addMessage("Something went wrong. Please try again.", "bot");

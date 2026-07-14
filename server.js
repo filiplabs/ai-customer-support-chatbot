@@ -15,19 +15,19 @@ app.use(express.static("public"));
 
 app.post("/chat", async (req, res) => {
   try {
-    const message = req.body.message?.trim();
+    const messages = req.body.messages;
 
-    if (!message) {
+    if (!Array.isArray(messages) || messages.length === 0) {
       return res.status(400).json({
-        error: "Message is required.",
+        error: "Conversation messages are required.",
       });
     }
 
     const response = await openai.responses.create({
       model: "gpt-5-mini",
       instructions:
-        "You are a helpful customer support assistant for an online store. Answer briefly, clearly, and professionally. If you do not know something, say that a human support agent should be contacted.",
-      input: message,
+        "You are a helpful customer support assistant for an online store. Answer briefly, clearly, and professionally. If you do not know something, recommend contacting a human support agent.",
+      input: messages,
     });
 
     return res.json({
