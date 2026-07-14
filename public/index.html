@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FilipLabs AI Support</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+  <main class="chat-container">
+    <header class="chat-header">
+      <h1>FilipLabs AI Support</h1>
+      <p>Ask a question about delivery, returns, or payments.</p>
+    </header>
+
+    <section id="messages" class="messages">
+      <div class="message bot-message">
+        Hello! How can I help you today?
+      </div>
+    </section>
+
+    <form id="chat-form" class="chat-form">
+      <input
+        id="message-input"
+        type="text"
+        placeholder="Type your message..."
+        autocomplete="off"
+        required
+      />
+      <button type="submit">Send</button>
+    </form>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
