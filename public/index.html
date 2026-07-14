@@ -3,6 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta
+    name="description"
+    content="AI-powered customer support chatbot by FilipLabs."
+  />
   <title>FilipLabs AI Support</title>
   <link rel="stylesheet" href="style.css" />
 </head>
@@ -10,26 +14,52 @@
 <body>
   <main class="chat-container">
     <header class="chat-header">
-      <h1>FilipLabs AI Support</h1>
-      <p>Ask a question about delivery, returns, or payments.</p>
+      <div class="brand">
+        <div class="brand-icon">FL</div>
+
+        <div>
+          <p class="eyebrow">FilipLabs Demo</p>
+          <h1>AI Customer Support</h1>
+
+          <div class="status">
+            <span class="status-dot"></span>
+            <span>Online</span>
+          </div>
+        </div>
+      </div>
+
+      <button id="clear-chat" type="button">Clear chat</button>
     </header>
 
-    <section id="messages" class="messages">
+    <section
+      id="messages"
+      class="messages"
+      aria-live="polite"
+      aria-label="Chat messages"
+    >
       <div class="message bot-message">
-        Hello! How can I help you today?
+        Hello! I can help with delivery, returns, payments, and general store questions.
       </div>
     </section>
 
     <form id="chat-form" class="chat-form">
+      <label for="message-input" class="sr-only">Your message</label>
+
       <input
         id="message-input"
         type="text"
         placeholder="Type your message..."
         autocomplete="off"
+        maxlength="500"
         required
       />
+
       <button type="submit">Send</button>
     </form>
+
+    <footer class="chat-footer">
+      Built by FilipLabs using Node.js, Express and OpenAI
+    </footer>
   </main>
 
   <script src="script.js"></script>
