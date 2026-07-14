@@ -24,17 +24,33 @@ form.addEventListener("submit", async (event) => {
   addMessage(userMessage, "user");
   input.value = "";
 
-  const response = await fetch("/chat", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      message: userMessage,
-    }),
-  });
+  // AI is typing...
+  const typingMessage = document.createElement("div");
+  typingMessage.classList.add("message", "bot-message");
+  typingMessage.textContent = "AI is typing...";
 
-  const data = await response.json();
+  messages.appendChild(typingMessage);
+  messages.scrollTop = messages.scrollHeight;
 
-  addMessage(data.reply, "bot");
+  try {
+    const response = await fetch("/chat", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        message: userMessage,
+      }),
+    });
+
+    const data = await response.json();
+
+    typingMessage.remove();
+
+    addMessage(data.reply, "bot");
+  } catch (error) {
+    typingMessage.remove();
+
+    addMessage("Something went wrong. Please try again.", "bot");
+  }
 });
