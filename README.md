@@ -2,7 +2,15 @@
 
 An AI-powered customer support chatbot built with **Node.js**, **Express**, **JavaScript**, and the **OpenAI API**.
 
-The application simulates a modern customer support assistant capable of answering common customer questions, maintaining conversation context during a session, and providing a clean, responsive chat experience.
+The application simulates a modern customer support assistant capable of answering customer questions, maintaining conversation context during a session, and providing a clean, responsive chat experience.
+
+---
+
+# 🌐 Live Demo
+
+### Try the application online
+
+https://ai-customer-support-chatbot-9vg7.onrender.com/
 
 ---
 
@@ -10,12 +18,13 @@ The application simulates a modern customer support assistant capable of answeri
 
 - 🤖 AI-generated customer support responses
 - 💬 Conversation memory during the session
-- ⚡ Typing indicator while AI generates a response
+- ⚡ Animated typing indicator
 - 🗑️ Clear chat functionality
 - 📱 Fully responsive design
-- 🔒 Secure API key management using environment variables
-- ❌ Error handling for failed requests
-- 🎨 Modern and clean user interface
+- 🔒 Secure API key management with environment variables
+- ❌ Error handling
+- 🎨 Modern UI with responsive layout
+- 🚀 Live deployment on Render
 
 ---
 
@@ -31,12 +40,13 @@ The application simulates a modern customer support assistant capable of answeri
 
 - HTML5
 - CSS3
-- JavaScript (Vanilla)
+- Vanilla JavaScript
 
 ### Tools
 
 - Git
 - GitHub
+- Render
 
 ---
 
@@ -89,10 +99,10 @@ OPENAI_API_KEY=your_api_key_here
 ## 5. Start the application
 
 ```bash
-node server.js
+npm start
 ```
 
-## 6. Open in your browser
+## 6. Open your browser
 
 ```
 http://localhost:3000
@@ -127,9 +137,9 @@ ai-customer-support-chatbot
 
 # 🔒 Security
 
-The `.env` file is excluded from version control using `.gitignore`.
-
-Never publish your OpenAI API key or any sensitive credentials to a public repository.
+- The `.env` file is excluded using `.gitignore`.
+- API keys are never stored in the repository.
+- Sensitive credentials are managed through environment variables.
 
 ---
 
@@ -142,7 +152,7 @@ Never publish your OpenAI API key or any sensitive credentials to a public repos
 - 📊 Admin dashboard
 - 📚 Custom knowledge base
 - ⚡ Streaming AI responses
-- 🚀 Deployment with live demo
+- 🛡️ Rate limiting and request protection
 
 ---
 
@@ -155,4 +165,4 @@ https://github.com/filiplabs
 
 ---
 
-⭐ If you found this project interesting, feel free to star the repository.
+If you found this project useful, feel free to ⭐ star the repository.

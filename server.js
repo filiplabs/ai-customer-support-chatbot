@@ -1,9 +1,20 @@
 const express = require("express");
 const cors = require("cors");
 const OpenAI = require("openai");
+const rateLimit = require("express-rate-limit");
 require("dotenv").config();
 
 const app = express();
+const chatLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: {
+    error:
+      "Too many requests. Please wait a few minutes before trying again.",
+  },
+});
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -12,16 +23,30 @@ const openai = new OpenAI({
 app.use(cors());
 app.use(express.json());
 app.use(express.static("public"));
+app.use("/chat", chatLimiter);
 
 app.post("/chat", async (req, res) => {
   try {
     const messages = req.body.messages;
-
     if (!Array.isArray(messages) || messages.length === 0) {
-      return res.status(400).json({
-        error: "Conversation messages are required.",
-      });
-    }
+  return res.status(400).json({
+    error: "Conversation messages are required.",
+  });
+}
+
+if (messages.length > 10) {
+  return res.status(400).json({
+    error: "Conversation is too long.",
+  });
+}
+
+const lastMessage = messages[messages.length - 1];
+
+if (!lastMessage.content || lastMessage.content.length > 500) {
+  return res.status(400).json({
+    error: "Message must be between 1 and 500 characters.",
+  });
+}
 
     const response = await openai.responses.create({
       model: "gpt-5-mini",
