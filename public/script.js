@@ -3,11 +3,47 @@ const input = document.querySelector("#message-input");
 const messagesContainer = document.querySelector("#messages");
 const submitButton = form.querySelector('button[type="submit"]');
 const clearButton = document.querySelector("#clear-chat");
+const themeToggle = document.querySelector("#theme-toggle");
+const sendLabel = submitButton.querySelector(".send-label");
 const chatStatus = document.querySelector("#chat-status");
 const initialMessage = messagesContainer.firstElementChild.textContent.trim();
+const THEME_STORAGE_KEY = "filiplabs-support-theme";
 
 const conversation = [];
 let activeRequestController = null;
+
+function getPreferredTheme() {
+  const savedTheme = localStorage.getItem(THEME_STORAGE_KEY);
+
+  if (savedTheme === "light" || savedTheme === "dark") {
+    return savedTheme;
+  }
+
+  return window.matchMedia?.("(prefers-color-scheme: dark)").matches
+    ? "dark"
+    : "light";
+}
+
+function applyTheme(theme) {
+  const isDark = theme === "dark";
+  const nextThemeLabel = isDark ? "light" : "dark";
+
+  document.documentElement.dataset.theme = theme;
+  themeToggle.setAttribute("aria-pressed", String(isDark));
+  themeToggle.setAttribute("aria-label", `Switch to ${nextThemeLabel} theme`);
+  themeToggle.title = `Switch to ${nextThemeLabel} theme`;
+}
+
+applyTheme(getPreferredTheme());
+
+themeToggle.addEventListener("click", () => {
+  const theme =
+    document.documentElement.dataset.theme === "dark" ? "light" : "dark";
+
+  localStorage.setItem(THEME_STORAGE_KEY, theme);
+  applyTheme(theme);
+  chatStatus.textContent = `${theme === "dark" ? "Dark" : "Light"} theme enabled.`;
+});
 
 function scrollToLatestMessage() {
   messagesContainer.scrollTop = messagesContainer.scrollHeight;
@@ -58,7 +94,7 @@ function createTypingIndicator() {
 function setLoading(isLoading) {
   input.disabled = isLoading;
   submitButton.disabled = isLoading;
-  submitButton.textContent = isLoading ? "Sending..." : "Send";
+  sendLabel.textContent = isLoading ? "Sending..." : "Send";
 }
 
 form.addEventListener("submit", async (event) => {
