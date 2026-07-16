@@ -22,7 +22,7 @@
           <h1>AI Customer Support</h1>
 
           <div class="status">
-            <span class="status-dot"></span>
+            <span class="status-dot" aria-hidden="true"></span>
             <span>Online</span>
           </div>
         </div>
@@ -34,10 +34,15 @@
     <section
       id="messages"
       class="messages"
+      role="log"
       aria-live="polite"
+      aria-relevant="additions text"
       aria-label="Chat messages"
     >
-      <div class="message bot-message">
+      <div
+        class="message bot-message"
+        aria-label="Assistant: Hello! I can help with delivery, returns, payments, and general store questions."
+      >
         Hello! I can help with delivery, returns, payments, and general store questions.
       </div>
     </section>
@@ -56,6 +61,8 @@
 
       <button type="submit">Send</button>
     </form>
+
+    <div id="chat-status" class="sr-only" role="status" aria-live="polite"></div>
 
     <footer class="chat-footer">
       Built by FilipLabs using Node.js, Express and OpenAI

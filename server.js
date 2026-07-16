@@ -1,74 +1,61 @@
-const express = require("express");
-const cors = require("cors");
 const OpenAI = require("openai");
-const rateLimit = require("express-rate-limit");
+const { createClient } = require("redis");
+const { RedisStore } = require("rate-limit-redis");
+const { createApp } = require("./app");
+const { loadConfig } = require("./config");
 require("dotenv").config();
 
-const app = express();
-const chatLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 10,
-  standardHeaders: true,
-  legacyHeaders: false,
-  message: {
-    error:
-      "Too many requests. Please wait a few minutes before trying again.",
-  },
-});
-
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
-
-app.use(cors());
-app.use(express.json());
-app.use(express.static("public"));
-app.use("/chat", chatLimiter);
-
-app.post("/chat", async (req, res) => {
-  try {
-    const messages = req.body.messages;
-    if (!Array.isArray(messages) || messages.length === 0) {
-  return res.status(400).json({
-    error: "Conversation messages are required.",
+async function startServer() {
+  const config = loadConfig();
+  const openai = new OpenAI({
+    apiKey: config.openaiApiKey,
+    maxRetries: 0,
   });
-}
 
-if (messages.length > 10) {
-  return res.status(400).json({
-    error: "Conversation is too long.",
-  });
-}
+  let redisClient;
+  let rateLimitStore;
 
-const lastMessage = messages[messages.length - 1];
-
-if (!lastMessage.content || lastMessage.content.length > 500) {
-  return res.status(400).json({
-    error: "Message must be between 1 and 500 characters.",
-  });
-}
-
-    const response = await openai.responses.create({
-      model: "gpt-5-mini",
-      instructions:
-        "You are a helpful customer support assistant for an online store. Answer briefly, clearly, and professionally. If you do not know something, recommend contacting a human support agent.",
-      input: messages,
+  if (config.redisUrl) {
+    redisClient = createClient({ url: config.redisUrl });
+    redisClient.on("error", (error) => {
+      console.error("Redis rate-limit store error:", error.message);
     });
-
-    return res.json({
-      reply: response.output_text,
+    await redisClient.connect();
+    rateLimitStore = new RedisStore({
+      sendCommand: (...args) => redisClient.sendCommand(args),
+      prefix: "support-chat-rate-limit:",
     });
-  } catch (error) {
-    console.error(error);
-
-    return res.status(500).json({
-      error: "Unable to generate a response.",
-    });
+  } else if (config.nodeEnvironment === "production") {
+    console.warn(
+      "REDIS_URL is not configured; rate limiting will use the in-memory store."
+    );
   }
-});
 
-const PORT = process.env.PORT || 3000;
+  const app = createApp({
+    openai,
+    rateLimitStore,
+    trustProxy: config.trustProxy,
+    allowedOrigins: config.allowedOrigins,
+  });
 
-app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+  const server = app.listen(config.port, () => {
+    console.log(`Server running on http://localhost:${config.port}`);
+  });
+
+  const shutdown = () => {
+    server.close(async () => {
+      if (redisClient?.isOpen) {
+        await redisClient.quit();
+      }
+      process.exit(0);
+    });
+  };
+
+  process.on("SIGTERM", shutdown);
+  process.on("SIGINT", shutdown);
+}
+
+startServer().catch((error) => {
+  console.error("Unable to start server:", error.message);
+  process.exit(1);
 });
