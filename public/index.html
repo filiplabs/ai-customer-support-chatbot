@@ -15,7 +15,9 @@
   <main class="chat-container">
     <header class="chat-header">
       <div class="brand">
-        <div class="brand-icon">FL</div>
+        <div class="brand-icon" aria-hidden="true">
+          <span>FL</span>
+        </div>
 
         <div>
           <p class="eyebrow">FilipLabs Demo</p>
@@ -28,7 +30,31 @@
         </div>
       </div>
 
-      <button id="clear-chat" type="button">Clear chat</button>
+      <div class="header-actions">
+        <button
+          id="theme-toggle"
+          class="icon-button"
+          type="button"
+          aria-label="Switch to dark theme"
+          aria-pressed="false"
+          title="Switch to dark theme"
+        >
+          <svg class="theme-icon theme-icon-sun" viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="12" cy="12" r="4"></circle>
+            <path d="M12 2v2M12 20v2M4.93 4.93l1.42 1.42M17.65 17.65l1.42 1.42M2 12h2M20 12h2M4.93 19.07l1.42-1.42M17.65 6.35l1.42-1.42"></path>
+          </svg>
+          <svg class="theme-icon theme-icon-moon" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M20.2 15.1A8.5 8.5 0 0 1 8.9 3.8 8.5 8.5 0 1 0 20.2 15.1Z"></path>
+          </svg>
+        </button>
+
+        <button id="clear-chat" class="secondary-button" type="button">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M4 7h16M9 7V4h6v3M7 7l1 13h8l1-13M10 11v5M14 11v5"></path>
+          </svg>
+          <span>Clear chat</span>
+        </button>
+      </div>
     </header>
 
     <section
@@ -59,7 +85,12 @@
         required
       />
 
-      <button type="submit">Send</button>
+      <button type="submit" aria-label="Send message">
+        <span class="send-label">Send</span>
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="m5 12 14-7-5 14-2.5-5.5L5 12Z"></path>
+        </svg>
+      </button>
     </form>
 
     <div id="chat-status" class="sr-only" role="status" aria-live="polite"></div>
