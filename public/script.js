@@ -3,8 +3,11 @@ const input = document.querySelector("#message-input");
 const messagesContainer = document.querySelector("#messages");
 const submitButton = form.querySelector('button[type="submit"]');
 const clearButton = document.querySelector("#clear-chat");
+const chatStatus = document.querySelector("#chat-status");
+const initialMessage = messagesContainer.firstElementChild.textContent.trim();
 
 const conversation = [];
+let activeRequestController = null;
 
 function scrollToLatestMessage() {
   messagesContainer.scrollTop = messagesContainer.scrollHeight;
@@ -15,6 +18,12 @@ function addMessage(text, type) {
 
   message.classList.add("message", `${type}-message`);
   message.textContent = text;
+  const sender = type === "user" ? "You" : type === "bot" ? "Assistant" : "Error";
+  message.setAttribute("aria-label", `${sender}: ${text}`);
+
+  if (type === "error") {
+    message.setAttribute("role", "alert");
+  }
 
   messagesContainer.appendChild(message);
   scrollToLatestMessage();
@@ -30,10 +39,13 @@ function createTypingIndicator() {
     "bot-message",
     "typing-message"
   );
+  typingMessage.setAttribute("role", "status");
+  typingMessage.setAttribute("aria-label", "Assistant is typing");
 
   for (let index = 0; index < 3; index += 1) {
     const dot = document.createElement("span");
     dot.classList.add("typing-dot");
+    dot.setAttribute("aria-hidden", "true");
     typingMessage.appendChild(dot);
   }
 
@@ -69,6 +81,8 @@ form.addEventListener("submit", async (event) => {
   setLoading(true);
 
   const typingMessage = createTypingIndicator();
+  const requestController = new AbortController();
+  activeRequestController = requestController;
 
   try {
     const response = await fetch("/chat", {
@@ -79,6 +93,7 @@ form.addEventListener("submit", async (event) => {
       body: JSON.stringify({
         messages: conversation,
       }),
+      signal: requestController.signal,
     });
 
     const data = await response.json();
@@ -97,28 +112,36 @@ form.addEventListener("submit", async (event) => {
   } catch (error) {
     typingMessage.remove();
 
-    addMessage(
-      "Sorry, the assistant is currently unavailable. Please try again.",
-      "error"
-    );
+    const lastMessage = conversation.at(-1);
+    if (lastMessage?.role === "user" && lastMessage.content === userMessage) {
+      conversation.pop();
+    }
 
-    console.error("Chat request failed:", error);
+    if (error.name !== "AbortError") {
+      addMessage(
+        "Sorry, the assistant is currently unavailable. Please try again.",
+        "error"
+      );
+
+      console.error("Chat request failed:", error);
+    }
   } finally {
-    setLoading(false);
-    input.focus();
+    if (activeRequestController === requestController) {
+      activeRequestController = null;
+      setLoading(false);
+      input.focus();
+    }
   }
 });
 
 clearButton.addEventListener("click", () => {
+  activeRequestController?.abort();
+  activeRequestController = null;
   conversation.length = 0;
-
-  messagesContainer.innerHTML = `
-    <div class="message bot-message">
-      Hello! I can help with delivery, returns, payments, and general store questions.
-    </div>
-  `;
-
+  messagesContainer.replaceChildren();
+  addMessage(initialMessage, "bot");
   input.value = "";
   setLoading(false);
+  chatStatus.textContent = "Chat cleared.";
   input.focus();
 });

@@ -128,6 +128,12 @@ input {
   transform: translateY(1px);
 }
 
+#clear-chat:focus-visible,
+.chat-form button:focus-visible {
+  outline: 3px solid #6479ff;
+  outline-offset: 3px;
+}
+
 .messages {
   flex: 1;
   padding: 28px 24px;
@@ -298,7 +304,9 @@ input {
   .chat-container {
     width: 100%;
     height: 100vh;
+    height: 100dvh;
     min-height: 100vh;
+    min-height: 100dvh;
     border: 0;
     border-radius: 0;
   }
@@ -335,5 +343,21 @@ input {
 
   .chat-form button {
     padding-inline: 17px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .messages {
+    scroll-behavior: auto;
+  }
+
+  .message,
+  .typing-dot {
+    animation: none;
+  }
+
+  #clear-chat,
+  .chat-form button {
+    transition: none;
   }
 }
